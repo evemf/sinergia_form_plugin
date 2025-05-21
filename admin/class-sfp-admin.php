@@ -11,6 +11,8 @@ class SFP_Admin {
         add_action('wp_ajax_sinergiacrm_get_esdeveniments_ajax', [$this, 'get_esdeveniments_ajax']);
         add_action('wp_ajax_sinergiacrm_get_form_template', [$this, 'get_form_template']);
         add_action('wp_ajax_nopriv_sinergiacrm_get_form_template', [$this, 'get_form_template']);
+        add_action('wp_ajax_sinergiacrm_get_single_form_template', [$this, 'get_single_form_template']);
+        add_action('wp_ajax_nopriv_sinergiacrm_get_single_form_template', [$this, 'get_single_form_template']);
     }
 
     public function maybe_start_session() {
@@ -211,7 +213,8 @@ class SFP_Admin {
         $event_list = $apiClient->getEntryList($params);
     
         $events_html = '<div class="wrap"><h2>Llistat d\'Esdeveniments</h2>';
-    
+        $events_html .= '
+        <input type="text" id="event-search" placeholder="Cerca per nom..." style="margin-bottom:10px; padding:5px; width: 300px;">';
         $events_data = [];
     
         if (!empty($event_list->entry_list)) {
@@ -323,5 +326,35 @@ class SFP_Admin {
         }
         
         wp_die();
-    } 
+    }
+
+    public function get_single_form_template() {
+        try {
+            if (!check_ajax_referer('sinergiacrm_nonce', 'nonce', false)) {
+                wp_send_json_error(['message' => 'Error de seguretat: Nonce invàlid.']);
+                return;
+            }
+    
+            $event_id = isset($_POST['event_id']) ? sanitize_text_field($_POST['event_id']) : '';
+            $assigned_user_id = isset($_POST['assigned_user_id']) ? sanitize_text_field($_POST['assigned_user_id']) : '';
+            $events_data_json = isset($_POST['events']) ? $_POST['events'] : '[]';
+    
+    
+            ob_start();
+            include SFP_PATH . 'assets/html/form-template-small.php';
+            $template = ob_get_clean();
+    
+            wp_send_json_success(['html' => htmlspecialchars($template, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')]);
+    
+        } catch (Exception $e) {
+            error_log('Error en get_single_form_template: ' . $e->getMessage());
+            wp_send_json_error([
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ]);
+        }
+    
+        wp_die();
+    }
+    
 }

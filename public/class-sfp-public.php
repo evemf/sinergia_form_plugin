@@ -22,11 +22,44 @@ class SFP_Public {
 
     public function render_sinergia_form($atts) {
         $atts = shortcode_atts([
-            'event_id' => ''
+            'event_id' => '',
+            'assigned_user_id' => ''
         ], $atts, 'sinergia_form');
-
+    
+        $event_id = $atts['event_id'];
+        $assigned_user_id = $atts['assigned_user_id'];
+    
         ob_start();
-        include plugin_dir_path(__FILE__) . '../assets/html/form-template.php';
+        if (!empty($event_id)) {
+            include plugin_dir_path(__FILE__) . '../assets/html/form-template-small.php';
+        } else {
+            include plugin_dir_path(__FILE__) . '../assets/html/form-template.php';
+        }
+        return ob_get_clean();$atts = shortcode_atts([
+            'event_id' => '',
+            'assigned_user_id' => ''
+        ], $atts, 'sinergia_form');
+    
+        $event_id = esc_attr($atts['event_id']);
+        $assigned_user_id = esc_attr($atts['assigned_user_id']);
+        
+        ob_start();
+        
+        if (!empty($event_id)) {
+            $template_path = plugin_dir_path(__FILE__) . '../assets/html/form-template-small.php';
+            $template = file_get_contents($template_path);
+            
+            $template = str_replace(
+                ['<?php echo esc_attr($event_id); ?>', '<?php echo esc_attr($assigned_user_id); ?>'],
+                [$event_id, $assigned_user_id],
+                $template
+            );
+            
+            echo $template;
+        } else {
+            include plugin_dir_path(__FILE__) . '../assets/html/form-template.php';
+        }
+        
         return ob_get_clean();
     }
 }

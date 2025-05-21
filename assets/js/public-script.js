@@ -512,6 +512,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 $(errorZone).html("");
                             }
                             
+                            // Guardar tamaño para cálculos posteriores
                             if (numInput && !isNaN(parseInt(numInput))) {
                                 formSizeArray[parseInt(numInput) - 1] = fileSize;
                             }

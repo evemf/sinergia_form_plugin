@@ -42,6 +42,22 @@ jQuery(document).ready(function ($) {
                     $('#events-content').html(response.data.html);
                     allEventsData = response.data.events_data;
                     initCheckboxHandlers();
+            
+                    // 🔍 Iniciar buscador
+                    const searchInput = document.getElementById('event-search');
+                    const table = document.getElementById('events-table');
+                    if (searchInput && table) {
+                        searchInput.addEventListener('keyup', function () {
+                            const filter = this.value.toLowerCase();
+                            const rows = table.querySelectorAll('tbody tr');
+                            rows.forEach(row => {
+                                const nameCell = row.cells[1];
+                                const name = nameCell.textContent.toLowerCase();
+                                row.style.display = name.includes(filter) ? '' : 'none';
+                            });
+                        });
+                    }
+            
                 } else {
                     $('#events-content').html('<p style="color:red;">' + (response.data?.message || 'Error desconegut') + '</p>');
                 }
@@ -127,37 +143,83 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        let scheduleOptionsHtml = '';
-        selectedEvents.forEach(event => {
-            const customLabel = prompt(`Introdueix el text que vols mostrar per a l'esdeveniment:\n"${event.name}"`, event.name);
-            const label = customLabel !== null && customLabel.trim() !== '' ? customLabel.trim() : event.name;
-            scheduleOptionsHtml += `<option value="${event.id}" data-assigned-user-id="${event.assigned_user_id}">${label}</option>`;
-        });
-    
-        $('#form-generator-container').show();
-        $('#form-code-display').html('<p><em>Generant formulari...</em></p>');
-    
-        $.ajax({
-            url: ajax_object.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'sinergiacrm_get_form_template',
-                nonce: ajax_object.nonce,
-                events: JSON.stringify(selectedEvents),
-                schedule_options: scheduleOptionsHtml
-            },
-            success: function (response) {
-                if (response.success) {
-                    $('#form-code-display').html(response.data.html);
-                } else {
-                    $('#form-code-display').html('<p style="color:red;">Error: ' +
-                        (response.data?.message || 'No s\'ha pogut generar el formulari') + '</p>');
+        else if (selectedEvents.length > 1) {
+            let orderedEvents = [];
+
+            selectedEvents.forEach(event => {
+                const label = prompt(`Etiqueta per a "${event.name}"`, event.name) || event.name;
+                const position = parseInt(prompt(`Posició (1-${selectedEvents.length}) per a "${label}"`), 10);
+                
+                orderedEvents.push({ ...event, label, position: isNaN(position) ? 9999 : position });
+            });
+
+            orderedEvents.sort((a, b) => a.position - b.position);
+
+            let scheduleOptionsHtml = '';
+            orderedEvents.forEach(event => {
+                scheduleOptionsHtml += `<option value="${event.id}" data-assigned-user-id="${event.assigned_user_id}">${event.label}</option>`;
+            });
+            $('#form-generator-container').show();
+            $('#form-code-display').html('<p><em>Generant formulari...</em></p>');
+        
+            $.ajax({
+                url: ajax_object.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'sinergiacrm_get_form_template',
+                    nonce: ajax_object.nonce,
+                    events: JSON.stringify(selectedEvents),
+                    schedule_options: scheduleOptionsHtml
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setTimeout(() => {
+                            const offsetTop = $('#form-code-display').offset().top;
+                            $('html, body').animate({ scrollTop: offsetTop }, 800);
+                        }, 100);
+                        $('#form-code-display').html(response.data.html);
+                    } else {
+                        $('#form-code-display').html('<p style="color:red;">Error: ' +
+                            (response.data?.message || 'No s\'ha pogut generar el formulari') + '</p>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#form-code-display').html('<p style="color:red;">Error de connexió amb el servidor</p>');
                 }
-            },
-            error: function (xhr, status, error) {
-                $('#form-code-display').html('<p style="color:red;">Error de connexió amb el servidor</p>');
-            }
-        });
+            });
+        } else {
+            const selectedEvent = selectedEvents[0];
+            
+            $('#form-generator-container').show();
+            $('#form-code-display').html('<p><em>Generant formulari...</em></p>');
+        
+            $.ajax({
+                url: ajax_object.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'sinergiacrm_get_single_form_template',
+                    nonce: ajax_object.nonce,
+                    events: JSON.stringify(selectedEvents),
+                    event_id: selectedEvent.id,
+                    assigned_user_id: selectedEvent.assigned_user_id,
+                },
+                success: function (response) {
+                    if (response.success) {
+                        setTimeout(() => {
+                            const offsetTop = $('#form-code-display').offset().top;
+                            $('html, body').animate({ scrollTop: offsetTop }, 800);
+                        }, 100);
+                        $('#form-code-display').html(response.data.html);            
+                    } else {
+                        $('#form-code-display').html('<p style="color:red;">Error: ' +
+                            (response.data?.message || 'No s\'ha pogut generar el formulari') + '</p>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#form-code-display').html('<p style="color:red;">Error de connexió amb el servidor</p>');
+                }
+            });
+        }
     }
     
 });
