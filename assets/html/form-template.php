@@ -1,7 +1,7 @@
 <form action="https://fcsd.sinergiacrm.org/index.php?entryPoint=stic_Web_Forms_save" name="WebToLeadForm" method="POST" id="WebToLeadForm">
     <input type="hidden" id="event_id" name="event_id" value="" />
-    <input type="hidden" id="redirect_url" name="redirect_url" value="https://dev.fcsd.org/ca/inscripcio-registrada-correctament/" />
-    <input type="hidden" id="redirect_ko_url" name="redirect_ko_url" value="https://dev.fcsd.org/ca/inscripcio-registrada-correctament/" />
+    <input type="hidden" id="redirect_url" name="redirect_url" value="https://fcsd.org/ca/inscripcio-registrada-correctament/" />
+    <input type="hidden" id="redirect_ko_url" name="redirect_ko_url" value="https://fcsd.org/ca/inscripcio-registrada-correctament/" />
     <input type="hidden" id="validate_identification_number" name="validate_identification_number" value="1" />
     <input type="hidden" id="assigned_user_id" name="assigned_user_id" value="" />
     <input type="hidden" id="req_id" name="req_id" value="Contacts___first_name;Contacts___last_name;Contacts___email1;Contacts___stic_identification_type_c;schedule_slot;" />
