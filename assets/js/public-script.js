@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (typeof jQuery !== 'undefined') {
         console.log("jQuery ya está cargado, usando la versión existente.");
         initializeScript(jQuery);
+        addPrivacyPolicyToRequired();
     } else {
         // Scripts externs
         loadExternalScript("https://fcsd.sinergiacrm.org/cache/include/javascript/sugar_grp1_jquery.js?v=c_0r5JnMRCy_X6dYTHX8pg", function () {
@@ -592,7 +593,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 $('#timeZone').val(Intl.DateTimeFormat().resolvedOptions().timeZone);
                 var formHasAlreadyBeenSent = false;
+
+                function validatePrivacyPolicy() {
+                    var privacyCheckbox = document.getElementById("accept_policy");
+                    
+                    if (!privacyCheckbox || !privacyCheckbox.checked) {
+                        alert("Has d'acceptar la política de privacitat per poder enviar el formulari.");
+                        if (privacyCheckbox) {
+                            privacyCheckbox.focus();
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+
                 function submitForm(form) {
+                    if (!validatePrivacyPolicy()) {
+                        return false;
+                    }
                     if (checkFields() && checkFormSize()) {
                         if (typeof validateCaptchaAndSubmit != "undefined") {
                             validateCaptchaAndSubmit();
@@ -608,6 +626,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     return false;
                 }
 
+                function addPrivacyPolicyToRequired() {
+                    var reqId = document.getElementById("req_id");
+                    if (reqId && reqId.value.indexOf("accept_policy") === -1) {
+                        reqId.value += "accept_policy;";
+                    }
+                }
+
                 // Fem accessibles globalment
                 window.submitForm = submitForm;
                 window.checkFields = checkFields;
@@ -618,5 +643,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.validateDates = validateDates;
                 window.getConfigVariables = getConfigVariables;
                 window.updateEventFields = updateEventFields;
+                window.validatePrivacyPolicy = validatePrivacyPolicy;
     } 
 });

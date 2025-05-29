@@ -60,7 +60,15 @@
             </td>
             <td colspan="2"><div id="error_schedule_slot" class="error-message" style="display:none;color:red;">Camp obligatori</div></td>
         </tr>
-        <tr><td>&nbsp;</td><td><input class="button" type="button" onclick="submitForm(this.form)" value="Envia" /></td></tr>
+        <tr>
+            <td colspan="6">
+                <label>
+                    <input type="checkbox" id="accept_policy" name="accept_policy" required />
+                    Accepto la <a href="/politica-de-privacitat" target="_blank">política de privacitat</a> *
+                </label>
+            </td>
+        </tr>
+        <tr><td>&nbsp;</td><td><input class="button" type="button" onclick="submitForm(this.form)" value="Envia" /></td></tr>  
     </table>
 </form>
 
