@@ -68,7 +68,7 @@
                 </label>
             </td>
         </tr>
-        <tr><td>&nbsp;</td><td><input class="button" type="button" onclick="submitForm(this.form)" value="Envia" /></td></tr>  
+        <tr><td>&nbsp;</td><td><input class="button" type="button" onclick="submitForm(this.form)" value="Envia" /></td></tr>
     </table>
 </form>
 
